@@ -1,0 +1,104 @@
+server:
+  port: 6091
+spring:
+  application:
+    name: spring-boot-drug-approval-service-provider
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://11.99.24.1:3306/ganzhou_oncedone?useUnicode=true&characterEncoding=utf-8&rewriteBatchedStatements=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: ENC(D4uq0NeCViMgjPJqSjm52VIyVi6G0KiSseXhNEITdChJ7jfwIxoLzFXDkBNTIT8D)
+    druid:
+      filters: stat,wall
+      statViewServlet:
+        enabled: true                                       # 是否开启 StatViewServlet
+        allow: 127.0.0.1                                    # 访问监控页面 白名单，默认127.0.0.1
+        deny:
+        loginUsername: drugapproval                        # 访问监控页面 登陆账号
+        loginPassword: drug@approval
+        visitUrl: 127.0.0.1
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+  cloud:
+    inetutils:
+      preferred-networks: '11.99.24.'
+
+redis:
+  enable: true
+  mode: one # one、cluster
+  nodes:
+    - 11.99.24.4:6379
+  password: ENC(LZdHVjdYZhR0ZqUunz5P8sH8ZW3mCGif63tGGrpzui6KfcQtj880x2cZZZIPazTM)
+
+approval:
+  puSai:
+    id: puSai
+    token: PUSAI_AUTH_TOKEN
+    systemCode: p5sahi31hudaih34
+  oneWindow:
+    id: oneWindow
+    token: ONEWINDOW_AUTH_TOKEN
+    systemCode: 69f9d0d54d5d11ee91730242ac
+drugs:
+  filePath: /data/drugsFile/
+  params:
+    id: xgs
+    keyCode: 57wf0a7nuutydxy4
+  urls:
+    baseUrl: http://10.4.154.1:16091/yjexchange-svr # url
+#    baseUrl: http://dev.powersunny.com.cn:16091/yjexchange-svr # url
+
+    getTokenUrl: /auth/token # 获取 token
+    submit:
+      basic:
+        getEnumUrl: /submit/getEnum # 获取枚举选项
+      query:
+        getLicenseListUrl: /license/list # 查询企业名下证书列表
+        getApplyInfoByIdUrl: /submit/getApplyByid # 查询申请信息
+        getTransactApplyUrl: /submit/getApprovalRecord # 查询申请的办理记录
+        getApplyListUrl: /submit/getApplyList # 查询申请列表
+        queryAplByidUrl: /submit/queryAplByid # 查询继承主表记录
+        queryAplListUrl: /submit/queryAplList # 查询从表记录
+        getLicensePreviewPdfUrl: /license/previewPdf #证书预览
+        queryLicencePreviewPdfByApplyidUrl: /license/viewPdfByApplyid #证书预览
+      applyForm:
+        applicationUrl: /submit/submitApplyForm # 提交申请表数据
+        saveOrUpdateUrl: /submit/updateApplyForm # 保存或更新申请表数据
+        selfReturnUrl: /submit/backApplyForm # 企业自行退回申请
+        getDataFormUrl: /submit/loadApplyForm # 读取申请表数据
+        initAplUrl: /submit/initApl #初始化申请表数据
+        getPreviewerUrl: /submit/getFile # 文件预览url
+      applyMaterial:
+        getApplyUrl: /aplMatter/list # 获取申请材料列表
+        submitSingleUrl: /aplMatter/uploadAttachment # 提交单个申请材料的所有附件
+        removeSingleUrl: /aplMatter/removeAttachment # 单个申请材料删除附件
+        submitSingleCorrectionUrl: /appendMatter/uploadAttachment # 上传单个补正材料附件
+        uploadFileUrl: /submit/uploadFile # 上传文件
+        removeFileUrl: /submit/removeFile # 文件删除
+        getApplyCorrectionListUrl: /appendMatter/appendList # 获取申请材料补正清单
+        submitCorrectionUrl: /appendMatter/submit # 提交补正
+        getRectifyMatterUtl: /rectifyMatter/info # 获取整改信息
+        removeSingleRectifyUrl: /rectifyMatter/removeAttachment # 企业删除一个整改材料
+        submitEnterpriseRectificationUrl: /rectifyMatter/uploadAttachment # 企业提交整改材料
+        syncCorrectionUrl: /appendMatter/sync # 同步某个补正材料
+        removeSingleCorrectionUrl: /appendMatter/removeAttachment # 删除单个补正材料附件
+        submitRectifyMatterUrl: /rectifyMatter/submit # 提交整改
+        saveSpecialMatterUrl: /specialMatter/save #保存单个特殊材料
+        saveBatchSpecialMatterUrl: /specialMatter/batchsave #保存单个特殊材料
+#      approval:
+#        IssueCompletionAndCorrectionUrl: /notice/append # 向企业下发补齐补正通知
+#        IssueAcceptanceUrl: /notice/acceptyes # 向企业下发受理通知
+#        IssueInadmissibleUrl: /notice/acceptno # 向企业下发不予受理通知
+#        IssueRectificationUrl: /notice/rectify # 向企业下发整改通知
+#        IssueApprovalConclusionAndNoticeUrl: /notice/resultyes # 向企业下发准予结论和通知书
+#        IssueRefuseUrl: /notice/resultno # 向企业下发不予结论
+
+xxl:
+  job:
+    admin:
+      addresses: http://11.99.24.7:8076/xxl-job-admin # xxl-job管理后台地址，登录账号：admin 密码：1W@ike
+
+logstash:
+  address: 127.0.0.1:9500 # ELK日志Logstash收集地址

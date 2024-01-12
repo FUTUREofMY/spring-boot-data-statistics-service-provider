@@ -1,0 +1,15 @@
+spring:
+  profiles:
+    active: dev
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
+
+logging:
+  # 设置logback.xml位置
+  config: classpath:log/logback.xml
+  group:
+    drug: com.bytefuture.data
+  level:
+    root: info
+    drug: info

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="false" scanPeriod="60 seconds">
+
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name"/>
+    <springProperty scope="context" name="LOGSTASH_ADDRESS" source="logstash.address"/>
+    <property name="log.pattern" value="%X{RequestNo}-%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36}[%L] - %msg%n"/>
+
+    <appender name="logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <!-- logstash的IP及logstash中input配置的端口，多个则以<destination>xxx</destination>形式继续配置 -->
+        <destination>${LOGSTASH_ADDRESS}</destination>
+        <includeCallerData>true</includeCallerData>
+        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeCallerData>true</includeCallerData>
+            <includeMdc>true</includeMdc>
+            <includeMdcKeyName>X-Request-Trace-Id</includeMdcKeyName>
+            <includeMdcKeyName>X-Request-Uri</includeMdcKeyName>
+            <includeMdcKeyName>X-Request-UserId</includeMdcKeyName>
+            <includeMdcKeyName>X-Request-Remote-Ip</includeMdcKeyName>
+            <includeMdcKeyName>X-Request-Remote-Host</includeMdcKeyName>
+            <customFields>{"appName":"${APP_NAME}"}</customFields>
+        </encoder>
+        <connectionStrategy>
+            <roundRobin>
+                <connectionTTL>5 minutes</connectionTTL>
+            </roundRobin>
+        </connectionStrategy>
+    </appender>
+
+    <!--控制台输出-通用方式-->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!--定时任务日志记录：按月分类日志文件,若当前项目重启了,新生成一个日志文件-->
+    <appender name="jobLogFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>jobLogs/%d{yyyy-MM}/${APP_NAME}_%d{yyyy-MM-dd-HHmmss}.log</FileNamePattern>
+        </rollingPolicy>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS,CTT} [%thread] %-5level %logger{36} -%msg%n
+            </Pattern>
+        </layout>
+    </appender>
+
+    <appender name="jobAsyncLogFile" class="ch.qos.logback.classic.AsyncAppender">
+        <includeCallerData>true</includeCallerData>
+        <discardingThreshold>0</discardingThreshold>
+        <!--        <queueSize>256</queueSize>-->
+        <!--        <neverBlock>true</neverBlock>-->
+        <appender-ref ref="jobLogFile"/>
+    </appender>
+
+    <!-- logger节点，可选节点，作用是指明具体的包或类的日志输出级别，
+    以及要使用的<appender>（可以把<appender>理解为一个日志模板）。
+    addtivity：非必写属性，是否向上级loger传递打印信息。默认是true-->
+    <logger level="DEBUG" name="com.bytefuture.data.job" additivity="true">
+        <!--将定时任务的日志单独存储到日志文件中，不再控制台或skywalking进行记录，避免影响问题在线查看日志与排查问题-->
+        <appender-ref ref="jobAsyncLogFile"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="console"/>
+        <appender-ref ref="logstash" />
+    </root>
+
+</configuration>

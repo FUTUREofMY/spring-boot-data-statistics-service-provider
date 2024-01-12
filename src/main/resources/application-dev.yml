@@ -1,0 +1,41 @@
+server:
+  port: 6091
+spring:
+  application:
+    name: spring-boot-data-statistics-service-provider
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://171.35.109.177:8084/data_statistics?useUnicode=true&characterEncoding=utf-8&rewriteBatchedStatements=true
+    username: root
+    password: passW0rd
+    druid:
+      filters: stat,wall
+      statViewServlet:
+        enabled: true                                       # 是否开启 StatViewServlet
+        allow: 127.0.0.1                                    # 访问监控页面 白名单，默认127.0.0.1
+        deny:
+        loginUsername: drugapproval                        # 访问监控页面 登陆账号
+        loginPassword: drug@approval
+        visitUrl: 127.0.0.1
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+  cloud:
+    inetutils:
+      preferred-networks: '192.168.0.'
+
+redis:
+  enable: true
+  mode: one # one、cluster
+  nodes:
+    - 127.0.0.1:6379
+  password:
+
+jasypt:
+  encryptor:
+    password: 1tmk0171p13opufg
+    algorithm: PBEWithHmacSHA512AndAES_128
+
+logstash:
+  address: 127.0.0.1:9092 # ELK日志Logstash收集地址

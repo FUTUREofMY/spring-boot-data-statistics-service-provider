@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bytefuture.data.modules.item.mapper.ItemSituationMapper">
+    <delete id="truncateTableData">
+        truncate table t_item_situation;
+    </delete>
+
+    <select id="getItemSituationData" resultType="com.bytefuture.data.modules.item.domain.ItemSituation">
+        SELECT (SELECT COUNT(1)
+                from t_item
+                WHERE DISTRICT = item.DISTRICT and DEL_FLAG = 0 AND LENGTH(ITEM_CODE) > 2) as TOTAL_ITEMS_COUNT,
+               item.DISTRICT                                                               AS ADMINISTRATIVE_DIVISION,
+               COUNT(DISTINCT item.ITEM_CODE)                                              AS ONLINE_ITEMS_COUNT,
+               COUNT(DISTINCT url.ITEM_CODE)                                               AS EXTERNAL_LINKS_COUNT,
+               COUNT(DISTINCT detail.ITEM_CODE)                                            AS PROCESSED_ITEMS_COUNT,
+               (COUNT(DISTINCT item.ITEM_CODE) - COUNT(DISTINCT url.ITEM_CODE))            AS DEVELOPMENT_ITEMS_COUNT
+        FROM t_item item
+                 LEFT JOIN t_item_url url ON url.ITEM_CODE = item.ITEM_CODE
+                 LEFT JOIN t_flow_detail detail ON item.ITEM_CODE = detail.ITEM_CODE
+        WHERE item.STATUS = 1
+          AND LENGTH(item.ITEM_CODE) > 2
+          AND item.DEL_FLAG = 0
+          AND item.DISTRICT IN ('fzs', 'gzs', 'jdz', 'jjs', 'srs', 'ycs', 'yts', 'pxs')
+        GROUP BY item.DISTRICT
+        ORDER BY ONLINE_ITEMS_COUNT DESC
+    </select>
+    <select id="dataDisplay" resultType="com.bytefuture.data.modules.item.dto.DataDisplayDO">
+        SELECT
+            ADMINISTRATIVE_DIVISION,
+            ONLINE_ITEMS_COUNT,
+            PROCESSED_ITEMS_COUNT,
+            PROCESSED_ITEMS_COUNT/ONLINE_ITEMS_COUNT
+        FROM
+            `t_item_situation`
+    </select>
+
+</mapper>
